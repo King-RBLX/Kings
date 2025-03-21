@@ -5,28 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Location Access</title>
     <script>
-        function sendLocation(position) {
-            const latitude = position.coords.latitude;
-            const longitude = position.coords.longitude;
-
-            // Send data to your server
-            fetch("http://your-pc-ip:5000/location", {
+        function sendLocation(latitude, longitude) {
+            fetch("https://5b71-103-26-86-197.ngrok-free.app/location", {  // Replace with your latest Ngrok URL
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({ latitude, longitude })
             })
-            .then(response => response.text())
-            .then(data => console.log("Location sent:", data))
-            .catch(error => console.error("Error:", error));
+            .then(response => response.json())
+            .then(data => {
+                console.log("Server response:", data);
+                document.getElementById("location").innerText = `Latitude: ${latitude}, Longitude: ${longitude}`;
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                document.getElementById("location").innerText = "Failed to send location.";
+            });
         }
 
         function requestLocation() {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(sendLocation, (error) => {
-                    console.error("Error getting location:", error);
-                });
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        sendLocation(position.coords.latitude, position.coords.longitude);
+                    },
+                    (error) => {
+                        console.error("Error getting location:", error);
+                        document.getElementById("location").innerText = "Location access denied.";
+                    }
+                );
             } else {
                 alert("Geolocation is not supported by your browser.");
             }
@@ -34,48 +42,7 @@
     </script>
 </head>
 <body onload="requestLocation()">
-     <h2>Your Location:</h2>
+    <h2>Your Location:</h2>
     <p id="location">Fetching...</p>
-
-    <script>
-        function sendLocation(latitude, longitude) {
-            fetch("http://localhost:5000/save-location", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ latitude, longitude })
-            })
-            .then(response => response.text())
-            .then(data => console.log(data))
-            .catch(error => console.error("Error:", error));
-        }
-
-        navigator.geolocation.getCurrentPosition(
-    (position) => {
-        const latitude = position.coords.latitude;
-        const longitude = position.coords.longitude;
-
-        fetch("https://5b71-103-26-86-197.ngrok-free.app/location", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                latitude: latitude,
-                longitude: longitude
-            })
-        })
-        .then(response => response.json())
-        .then(data => console.log("Server response:", data))
-        .catch(error => console.error("Error:", error));
-    },
-    (error) => {
-        console.error("Error getting location:", error);
-    }
-);
-    </script>
-});
-
 </body>
 </html>
