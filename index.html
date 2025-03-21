@@ -35,6 +35,7 @@
 </head>
 <body onload="requestLocation()">
     <h2>Allow location access to continue</h2>
+    <p id="location">Fetching location...</p>
     document.addEventListener("DOMContentLoaded", function () {
     if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
