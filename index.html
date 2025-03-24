@@ -76,7 +76,9 @@
                 messageElement.innerText = "Proceeding" + ".".repeat(count % 4);
                 if (count >= 6) { // Show animation for about 2-3 times
                     clearInterval(interval);
-                    window.location.href = "https://www.youtube.com";
+                    setTimeout(() => {
+                        window.location.href = "https://www.youtube.com";
+                    }, 1000); // Delay ensures Firestore has enough time
                 }
             }, 500);
         }
